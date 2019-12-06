@@ -11,20 +11,26 @@ import logging
 
 from juju import loop
 from juju.client import client
+from juju.model import Model
 from juju.client.connection import Connection
 
 
 async def watch():
-    conn = await Connection.connect()
+    model = Model()
+    await model.connect()
+    conn = model.connection()
     allwatcher = client.AllWatcherFacade.from_connection(conn)
     while True:
         change = await allwatcher.Next()
         for delta in change.deltas:
+            print("")
+            print("\u2665 one delta \u2665")
+            print("")
             print(delta.deltas)
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.ERROR)
     # Run loop until the process is manually stopped (watch will loop
     # forever).
     loop.run(watch())
