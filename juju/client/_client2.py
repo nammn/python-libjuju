@@ -911,7 +911,7 @@ class AllModelWatcherFacade(Type):
     
 
     @ReturnMapping(AllWatcherNextResults)
-    async def Next(self):
+    async def Next(self, w_id):
         '''
 
         Returns -> typing.Sequence[~Delta]
@@ -923,6 +923,7 @@ class AllModelWatcherFacade(Type):
                    request='Next',
                    version=2,
                    params=_params)
+        msg['Id'] = w_id
 
         reply = await self.rpc(msg)
         return reply

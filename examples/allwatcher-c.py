@@ -17,18 +17,24 @@ from juju.controller import Controller
 async def watch():
     controller = Controller()
     await controller.connect()
-
-    facade = client.ControllerFacade.from_connection(controller.connection())
-    watcherId = await facade.WatchAllModels()
-    print(watcherId.watcher_id)
+    conn = controller.connection()
+    facade = client.ControllerFacade.from_connection(conn)
+    watcher_id = await facade.WatchAllModels()
+    w_id = watcher_id.watcher_id
+    allwatcher = client.AllModelWatcherFacade.from_connection(conn)
+    allwatcher.id = w_id
     while True:
-        change = await watcherId.Next()
+        # TODO: find out what to do with the watcher_id
+        change = await allwatcher.Next(w_id)
         for delta in change.deltas:
+            print("")
+            print("\u2665 one delta \u2665")
+            print("")
             print(delta.deltas)
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.ERROR)
     # Run loop until the process is manually stopped (watch will loop
     # forever).
     loop.run(watch())

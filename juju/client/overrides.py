@@ -94,6 +94,25 @@ class AllWatcherFacade(Type):
     Patch rpc method of allwatcher to add in 'id' stuff.
 
     """
+
+    async def rpc(self, msg):
+        if not hasattr(self, 'Id'):
+            client = _client.ClientFacade.from_connection(self.connection)
+
+            result = await client.WatchAll()
+            self.Id = result.watcher_id
+
+        msg['Id'] = self.Id
+        result = await self.connection.rpc(msg, encoder=TypeEncoder)
+        return result
+
+
+class AllModelWatcherFacade(Type):
+    """
+    Patch rpc method of AllWatcher to add in 'id' stuff.
+
+    """
+
     async def rpc(self, msg):
         if not hasattr(self, 'Id'):
             client = _client.ClientFacade.from_connection(self.connection)
@@ -107,7 +126,6 @@ class AllWatcherFacade(Type):
 
 
 class ActionFacade(Type):
-
     class _FindTagsResults(Type):
         _toSchema = {'matches': 'matches'}
         _toPy = {'matches': 'matches'}
@@ -268,10 +286,10 @@ class Binary(_definitions.Binary):
 
     def __eq__(self, other):
         return (
-            isinstance(other, type(self)) and
-            other.number == self.number and
-            other.series == self.series and
-            other.arch == self.arch)
+                isinstance(other, type(self)) and
+                other.number == self.number and
+                other.series == self.series and
+                other.arch == self.arch)
 
     @classmethod
     def from_json(cls, data):
